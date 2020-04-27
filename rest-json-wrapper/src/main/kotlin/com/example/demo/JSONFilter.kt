@@ -21,7 +21,6 @@ class JSONFilter : ResponseBodyAdvice<Any> {
     }
 
     override fun beforeBodyWrite(body: Any?, returnType: MethodParameter, selectedContentType: MediaType, selectedConverterType: Class<out HttpMessageConverter<*>>, request: ServerHttpRequest, response: ServerHttpResponse): Any? {
-        println("here $body")
         return Response.Wrapper(data = body)  // the actual wrap
     }
 }

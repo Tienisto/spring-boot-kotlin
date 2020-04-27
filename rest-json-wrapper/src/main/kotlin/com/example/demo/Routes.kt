@@ -8,7 +8,6 @@ class Routes {
     @GetMapping("/")
     fun getDefaultWrapper() {}
 
-    // e.g. /hello
     @GetMapping("/number")
     fun getWrapperWithMessage(): Int {
         return 42
