@@ -11,6 +11,9 @@ data class Person(@Id var id: Int = 0,
 
 interface PersonRepo: CoroutineCrudRepository<Person, Int> {
 
+    // SELECT * FROM person WHERE name LIKE '%tom%'
     suspend fun findByNameContains(name: String): List<Person>
+
+    // SELECT * FROM person WHERE age >= 42
     suspend fun findByAgeGreaterThanEqual(age: Int): List<Person>
 }
