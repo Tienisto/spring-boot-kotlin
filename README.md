@@ -1,5 +1,5 @@
 # spring-boot-kotlin
-Backends examples written in Kotlin and Spring Boot
+Backend examples written in Kotlin and Spring Boot
 
 ## Content
 
