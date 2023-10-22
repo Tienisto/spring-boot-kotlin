@@ -49,11 +49,7 @@ class SecurityConfig(
         }.authenticationManager { authenticationManager ->
             val jwt = authenticationManager as BearerTokenAuthenticationToken
             val user = tokenService.parseToken(jwt.token) ?: throw InvalidBearerTokenException("Invalid token")
-            val auth = UsernamePasswordAuthenticationToken(user, "", listOf(SimpleGrantedAuthority(user.role.name)))
-
-            auth.isAuthenticated
-
-            auth
+            UsernamePasswordAuthenticationToken(user, "", listOf(SimpleGrantedAuthority(user.role.name)))
         }.csrf { csrf ->
             csrf.disable()
         }.sessionManagement { sessionManagement ->
@@ -84,15 +80,4 @@ class SecurityConfig(
         return source
     }
 
-//    @Bean
-//    fun corsFilter(): CorsFilter {
-//        val source = UrlBasedCorsConfigurationSource()
-//        val config = CorsConfiguration()
-//        config.allowCredentials = true
-//        config.addAllowedOrigin("*")
-//        config.addAllowedHeader("*")
-//        config.addAllowedMethod("*")
-//        source.registerCorsConfiguration("/**", config)
-//        return CorsFilter(source)
-//    }
 }
