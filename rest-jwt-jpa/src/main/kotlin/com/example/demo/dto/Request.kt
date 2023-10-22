@@ -5,13 +5,20 @@ package com.example.demo.dto
  * Here, [LoginDto] is a data class containing immutable class members
  */
 data class LoginDto(
-    val name: String,
+    val username: String,
     val password: String,
 )
 
 data class RegisterDto(
-    val name: String,
+    val username: String,
+    val firstName: String?,
+    val lastName: String?,
     val password: String,
+)
+
+data class ChangeRoleDto(
+    val username: String,
+    val role: String,
 )
 
 data class CreateItemDto(
