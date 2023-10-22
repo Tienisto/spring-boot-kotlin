@@ -14,11 +14,11 @@ class UserService(
     }
 
     fun findByName(name: String): User? {
-        return userRepo.findByName(name)
+        return userRepo.findByUsername(name)
     }
 
     fun existsByName(name: String): Boolean {
-        return userRepo.existsByName(name)
+        return userRepo.existsByUsername(name)
     }
 
     fun save(user: User): User {
