@@ -3,7 +3,9 @@ package com.example.demo.controller
 import com.example.demo.config.toUser
 import com.example.demo.dto.*
 import com.example.demo.model.Item
+import com.example.demo.model.Role
 import com.example.demo.service.ItemService
+import jakarta.annotation.security.RolesAllowed
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
@@ -16,15 +18,20 @@ class ItemController(
     private val itemService: ItemService,
 ) {
 
-    @GetMapping
-    fun getItems(authentication: Authentication): List<ItemDto> {
+    @GetMapping("/v1/getAll")
+    fun getItemsV1(): List<ItemDto> {
+        return itemService.findAll().map { item -> item.toDto() }
+    }
+
+    @GetMapping("/v1/getAllByUser")
+    fun getItemsByUserV1(authentication: Authentication): List<ItemDto> {
         val authUser = authentication.toUser()
 
         return itemService.findByUser(authUser).map { item -> item.toDto() }
     }
 
-    @PostMapping
-    fun createItem(authentication: Authentication, @RequestBody payload: CreateItemDto) {
+    @PostMapping("/v1/add")
+    fun createItemV1(authentication: Authentication, @RequestBody payload: CreateItemDto) {
         val authUser = authentication.toUser()
 
         if (itemService.existsByNameAndUser(payload.name, authUser)) {
@@ -41,8 +48,8 @@ class ItemController(
         itemService.save(item)
     }
 
-    @PutMapping
-    fun updateItem(authentication: Authentication, @RequestBody payload: UpdateItemDto) {
+    @PutMapping("/v1/update")
+    fun updateItemV1(authentication: Authentication, @RequestBody payload: UpdateItemDto) {
         val authUser = authentication.toUser()
 
         val item = itemService.findById(payload.id) ?: throw ApiException(404, "Item not found")
@@ -62,8 +69,8 @@ class ItemController(
         itemService.save(item)
     }
 
-    @DeleteMapping
-    fun deleteItem(authentication: Authentication, @RequestParam itemId: Long) {
+    @DeleteMapping("/v1/deleteById")
+    fun deleteItemV1(authentication: Authentication, @RequestParam itemId: Long) {
         val authUser = authentication.toUser()
         val item = itemService.findById(itemId) ?: throw ApiException(404, "Item not found")
         if (item.user.id != authUser.id) {
