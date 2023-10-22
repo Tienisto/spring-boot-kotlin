@@ -26,7 +26,7 @@ class TokenService(
         val claims = JwtClaimsSet.builder()
             .issuedAt(Instant.now())
             .expiresAt(Instant.now().plus(30L, ChronoUnit.DAYS))
-            .subject(user.name)
+            .subject(user.username)
             .claim("userId", user.id)
             .build()
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).tokenValue
