@@ -10,7 +10,7 @@ data class Item (
     var id: Long = 0,
 
     @ManyToOne
-    var user: User = User(),
+    var user: User,
 
     @Column
     var name: String = "",

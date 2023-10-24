@@ -1,5 +1,6 @@
 package com.example.demo.config
 
+import com.example.demo.model.Role
 import com.example.demo.service.TokenService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,32 +22,48 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
  */
 @Configuration
 @EnableWebSecurity
-class SecurityConfig (
+class SecurityConfig(
     private val tokenService: TokenService,
 ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         // Define public and private routes
-        http.authorizeHttpRequests()
-            .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/register").permitAll()
-            .requestMatchers("/api/**").authenticated()
-            .anyRequest().permitAll()
-
-        // Configure JWT
-        http.oauth2ResourceServer().jwt()
-        http.authenticationManager { auth ->
-            val jwt = auth as BearerTokenAuthenticationToken
+        http.authorizeHttpRequests { authorizeHttpRequests ->
+            authorizeHttpRequests
+                //Authentication APIs
+                .requestMatchers(HttpMethod.POST,   "/api/auth/*/login").permitAll()
+                .requestMatchers(HttpMethod.POST,   "/api/auth/*/register").permitAll()
+                .requestMatchers(HttpMethod.PUT,    "/api/auth/*/changeRole").hasAuthority(Role.ADMIN.name)
+                //Items APIs
+                .requestMatchers(HttpMethod.GET,    "/api/items/*/getAll").hasAuthority(Role.ADMIN.name)
+                .requestMatchers(HttpMethod.GET,    "/api/items/*/getAllByUser").hasAnyAuthority(Role.VIEWER.name, Role.COLLECTOR.name, Role.EDITOR.name, Role.MANAGER.name, Role.ADMIN.name)
+                .requestMatchers(HttpMethod.POST,   "/api/items/*/*").hasAnyAuthority(Role.COLLECTOR.name, Role.EDITOR.name, Role.MANAGER.name, Role.ADMIN.name)
+                .requestMatchers(HttpMethod.PUT,    "/api/items/*/*").hasAnyAuthority(Role.EDITOR.name, Role.MANAGER.name, Role.ADMIN.name)
+                .requestMatchers(HttpMethod.DELETE, "/api/items/*/*").hasAnyAuthority(Role.MANAGER.name, Role.ADMIN.name)
+                //ALL APIs
+                .anyRequest().authenticated()
+        }.oauth2ResourceServer { oauth2ResourceServer ->
+            oauth2ResourceServer.jwt{ jwt ->
+                jwt
+            }
+        }.authenticationManager { authenticationManager ->
+            val jwt = authenticationManager as BearerTokenAuthenticationToken
             val user = tokenService.parseToken(jwt.token) ?: throw InvalidBearerTokenException("Invalid token")
-            UsernamePasswordAuthenticationToken(user, "", listOf(SimpleGrantedAuthority("USER")))
-        }
+            UsernamePasswordAuthenticationToken(user, "", listOf(SimpleGrantedAuthority(user.role.name)))
+        }.csrf { csrf ->
+            csrf.disable()
+        }.sessionManagement { sessionManagement ->
+            sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        }.headers { headers ->
+            headers.frameOptions { frameOptions ->
+                frameOptions.disable()
+            }.xssProtection { xssProtection ->
+                xssProtection.disable()
+            }
+        }.cors{ cors ->
+            cors
 
-        // Other configuration
-        http.cors()
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        http.csrf().disable()
-        http.headers().frameOptions().disable()
-        http.headers().xssProtection().disable()
+        }
 
         return http.build()
     }
@@ -55,11 +72,12 @@ class SecurityConfig (
     fun corsConfigurationSource(): CorsConfigurationSource {
         // allow localhost for dev purposes
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("http://localhost:3000", "http://localhost:8080")
+        configuration.allowedOrigins = listOf("http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:8080")
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
-        configuration.allowedHeaders = listOf("authorization", "content-type")
+        configuration.allowedHeaders = listOf("authorization", "content-type", "Host")
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
         return source
     }
+
 }

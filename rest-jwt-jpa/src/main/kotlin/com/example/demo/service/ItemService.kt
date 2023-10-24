@@ -14,6 +14,10 @@ class ItemService(
         return itemRepo.findByIdOrNull(id)
     }
 
+    fun findAll(): List<Item> {
+        return itemRepo.findAll()
+    }
+
     fun findByUser(user: User): List<Item> {
         return itemRepo.findByUser(user)
     }

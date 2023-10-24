@@ -1,5 +1,6 @@
 package com.example.demo.dto
 
+import com.example.demo.model.Role
 import org.springframework.web.server.ResponseStatusException
 
 /**
@@ -10,7 +11,18 @@ class ApiException(code: Int, message: String) : ResponseStatusException(code, m
 
 data class LoginResponseDto(
     val token: String,
+    val user: UserDto,
 )
+
+
+data class UserDto(
+    val id: Long,
+    val username: String,
+    val firstName: String?,
+    val lastName: String?,
+    val role: Role,
+)
+
 
 data class ItemDto(
     val id: Long,

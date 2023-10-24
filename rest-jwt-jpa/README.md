@@ -1,25 +1,36 @@
 # API
 
 ```text
-> POST /api/register
+> POST /api/auth/v1/register
 
 {
-  "name": "max",
+  "username": "max",
+  "firstName": null,
+  "lastName": "max",
   "password": "123"
 }
 ```
 
 ```text
-> POST /api/login
+> POST /api/auth/v1/login
 
 {
-  "name": "max",
+  "username": "max",
   "password": "123"
 }
 ```
 
 ```text
-> POST /api/items
+> POST /api/auth/v1/changeRole
+> Authorization: <JWT>
+{
+  "username": "max",
+  "role": "ADMIN"
+}
+```
+
+```text
+> POST /api/items/v1/add
 > Authorization: <JWT>
 
 {
@@ -30,7 +41,7 @@
 ```
 
 ```text
-> PUT /api/items
+> PUT /api/items/v1/update
 > Authorization: <JWT>
 
 {
@@ -42,11 +53,16 @@
 ```
 
 ```text
-> GET /api/items
+> GET /api/items/v1/getAll
 > Authorization: <JWT>
 ```
 
 ```text
-> DELETE /api/items?itemId=1
+> GET /api/items/v1/getAllByUser
+> Authorization: <JWT>
+```
+
+```text
+> DELETE /api/items/v1/deleteById?itemId=1
 > Authorization: <JWT>
 ```
